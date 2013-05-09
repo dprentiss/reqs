@@ -1,4 +1,4 @@
-package com.github.dprentiss;
+package com.github.dprentiss.reqs;
 
 import java.util.Iterator;
 
@@ -6,8 +6,6 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 
 import org.neo4j.graphdb.GraphDatabaseService;
-//import org.neo4j.graphdb.index.Index;
-//import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
@@ -18,7 +16,6 @@ public class ReqsDb {
     private final String STORE_DIR;
     public GraphDatabaseService graphDb;
     public ExecutionEngine cypher;
-    // public IndexManager index;
 
     private static enum RelTypes implements RelationshipType {
         IDENTIFIES, SATIFIES
@@ -33,8 +30,6 @@ public class ReqsDb {
             newGraphDatabase();
         registerShutdownHook(graphDb);
         cypher = new ExecutionEngine(graphDb);
-        //index = graphDb.index();
-        //Index<Node> stakeholders = index.forNodes("name");
     }
 
     public Node getStakeholder(String name) {
@@ -119,18 +114,5 @@ public class ReqsDb {
 
     void shutDown() {
         graphDb.shutdown();
-    }
-
-    public static void main(String[] args) {
-        ExecutionResult results; 
-        ReqsDb testDb = new ReqsDb("target/testDb");
-        testDb.addStakeholder("Mark Austin");
-        testDb.addStakeholder("David Prentiss");
-        testDb.addConcern("Student wants a good grade", "The student wants to recieve a grade of at least A- for the projct.");
-        System.out.println(testDb.getStakeholder("David Prentiss").getProperty("name"));
-        System.out.println(testDb.getConcern("Student wants a good grade").getProperty("title"));
-        testDb.addIdentifies(testDb.getStakeholder("David Prentiss"), testDb.getConcern("Student wants a good grade"));
-        results = testDb.cypher.execute("start n=node(*) return n");
-        System.out.print(results.dumpToString());
     }
 }
