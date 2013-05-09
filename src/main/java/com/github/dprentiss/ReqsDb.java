@@ -28,7 +28,7 @@ public class ReqsDb {
         STORE_DIR = dbPath;
         graphDb = new GraphDatabaseFactory().
             newEmbeddedDatabaseBuilder(STORE_DIR).
-            setConfig(GraphDatabaseSettings.node_keys_indexable, "name").
+            setConfig(GraphDatabaseSettings.node_keys_indexable, "name, title").
             setConfig(GraphDatabaseSettings.node_auto_indexing, "true").
             newGraphDatabase();
         registerShutdownHook(graphDb);
@@ -47,6 +47,18 @@ public class ReqsDb {
             stakeholder = nCol.next();
         }
         return stakeholder;
+    }
+
+    public Node getConcern(String title) {
+        ExecutionResult result;
+        Iterator<Node> nCol;
+        Node concern = null;
+        result = cypher.execute("start n=node:node_auto_index(title = \"" + title + "\") return n");
+        nCol = result.columnAs("n");
+        if (nCol.hasNext()) {
+            concern = nCol.next();
+        }
+        return concern;
     }
 
     public void addStakeholder(String name) {
@@ -73,7 +85,7 @@ public class ReqsDb {
         }
     }
 
-    public void addIdentifes(Node stakeholder, Node concern) {
+    public void addIdentifies(Node stakeholder, Node concern) {
         Transaction tx = graphDb.beginTx();
         try {
             stakeholder.createRelationshipTo(concern, RelTypes.IDENTIFIES);
@@ -110,11 +122,15 @@ public class ReqsDb {
     }
 
     public static void main(String[] args) {
-        String name = "test";
+        ExecutionResult results; 
         ReqsDb testDb = new ReqsDb("target/testDb");
         testDb.addStakeholder("Mark Austin");
         testDb.addStakeholder("David Prentiss");
         testDb.addConcern("Student wants a good grade", "The student wants to recieve a grade of at least A- for the projct.");
         System.out.println(testDb.getStakeholder("David Prentiss").getProperty("name"));
+        System.out.println(testDb.getConcern("Student wants a good grade").getProperty("title"));
+        testDb.addIdentifies(testDb.getStakeholder("David Prentiss"), testDb.getConcern("Student wants a good grade"));
+        results = testDb.cypher.execute("start n=node(*) return n");
+        System.out.print(results.dumpToString());
     }
 }
