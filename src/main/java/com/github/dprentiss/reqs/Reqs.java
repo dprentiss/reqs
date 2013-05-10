@@ -16,8 +16,18 @@ public class Reqs {
      * jar file or creates it.
      */
     public static void main(String[] args) {
-        ReqsDb testDb = new ReqsDb("testDb");
-        
+        final String STORE_DIR;
+        final String TEST_DB = "Project Databases/testDb";
+
+        // check args for database path
+        if(args.length > 0) {
+            STORE_DIR = args[0];
+        } else {
+            STORE_DIR = TEST_DB;
+        }
+
+        // open database
+        ReqsDb testDb = new ReqsDb(STORE_DIR);
 
         //Test
         ExecutionResult results; 

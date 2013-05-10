@@ -1,5 +1,7 @@
 package com.github.dprentiss.reqs;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Iterator;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
@@ -11,11 +13,16 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.kernel.impl.util.FileUtils;
 
 public class ReqsDb {
     private final String STORE_DIR;
     public GraphDatabaseService graphDb;
     public ExecutionEngine cypher;
+
+    // set to true to clear the database at STORE_DIR at startup 
+    // FOR TESTING ONLY, ALL PREVIOUS DATA WILL BE LOST
+    final boolean CLEAR_TEST_DB = false;
 
     private static enum RelTypes implements RelationshipType {
         IDENTIFIES, SATIFIES
@@ -23,6 +30,15 @@ public class ReqsDb {
 
     public ReqsDb(String dbPath) {
         STORE_DIR = dbPath;
+
+        if (CLEAR_TEST_DB) {
+            try {
+                FileUtils.deleteRecursively(new File(STORE_DIR));
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+
         graphDb = new GraphDatabaseFactory().
             newEmbeddedDatabaseBuilder(STORE_DIR).
             setConfig(GraphDatabaseSettings.node_keys_indexable, "name, title").
@@ -48,7 +64,8 @@ public class ReqsDb {
         ExecutionResult result;
         Iterator<Node> nCol;
         Node entity = null;
-        result = cypher.execute("start n=node:node_auto_index(name = \"" + name + "\") return n");
+        result = cypher.execute(
+                "start n=node:node_auto_index(name = \"" + name + "\") return n");
         nCol = result.columnAs("n");
         if (nCol.hasNext()) {
             entity = nCol.next();
@@ -60,7 +77,8 @@ public class ReqsDb {
         ExecutionResult result;
         Iterator<Node> nCol;
         Node concern = null;
-        result = cypher.execute("start n=node:node_auto_index(title = \"" + title + "\") return n");
+        result = cypher.execute(
+                "start n=node:node_auto_index(title = \"" + title + "\") return n");
         nCol = result.columnAs("n");
         if (nCol.hasNext()) {
             concern = nCol.next();
@@ -94,12 +112,12 @@ public class ReqsDb {
     private static void registerShutdownHook(
             final GraphDatabaseService graphDb) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
-                    @Override
-                    public void run() {
-                        graphDb.shutdown();
-                    }
+            @Override
+            public void run() {
+                graphDb.shutdown();
+            }
         });
-    }
+            }
 
     void shutDown() {
         graphDb.shutdown();
