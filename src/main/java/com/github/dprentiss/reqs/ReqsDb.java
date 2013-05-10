@@ -32,16 +32,28 @@ public class ReqsDb {
         cypher = new ExecutionEngine(graphDb);
     }
 
-    public Node getStakeholder(String name) {
+    public void addPrimaryEntity(String name) {
+        Transaction tx = graphDb.beginTx();
+        Node entity;
+        try {
+            entity = graphDb.createNode();
+            entity.setProperty("name", name);
+            tx.success();
+        } finally {
+            tx.finish();
+        }
+    }
+
+    public Node getPrimaryEntity(String name) {
         ExecutionResult result;
         Iterator<Node> nCol;
-        Node stakeholder = null;
+        Node entity = null;
         result = cypher.execute("start n=node:node_auto_index(name = \"" + name + "\") return n");
         nCol = result.columnAs("n");
         if (nCol.hasNext()) {
-            stakeholder = nCol.next();
+            entity = nCol.next();
         }
-        return stakeholder;
+        return entity;
     }
 
     public Node getConcern(String title) {
@@ -54,30 +66,6 @@ public class ReqsDb {
             concern = nCol.next();
         }
         return concern;
-    }
-
-    public void addStakeholder(String name) {
-        Transaction tx = graphDb.beginTx();
-        Node newStakeholder;
-        try {
-            newStakeholder = graphDb.createNode();
-            newStakeholder.setProperty("name", name);
-            tx.success();
-        } finally {
-            tx.finish();
-        }
-    }
-
-    public void createTestNode() {
-        Transaction tx = graphDb.beginTx();
-        Node newNode;
-        try {
-            newNode = graphDb.createNode();
-            newNode.setProperty("test", "test");
-            tx.success();
-        } finally {
-            tx.finish();
-        }
     }
 
     public void addIdentifies(Node stakeholder, Node concern) {
@@ -103,7 +91,8 @@ public class ReqsDb {
         }
     }
 
-    private static void registerShutdownHook(final GraphDatabaseService graphDb) {
+    private static void registerShutdownHook(
+            final GraphDatabaseService graphDb) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
                     @Override
                     public void run() {
