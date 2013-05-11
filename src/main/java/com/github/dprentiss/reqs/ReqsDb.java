@@ -24,6 +24,7 @@ public class ReqsDb {
     private static Index<Node> documents;
     private static final String DOCUMENT_KEY = "URI";
     private static Index<Node> primaryEntities;
+    private static final String PRIMARY_ENTITY_KEY = "name";
     private static Index<Node> stakeholders;
     static ExecutionEngine cypher;
 
@@ -55,29 +56,34 @@ public class ReqsDb {
             }
         }
 
+        // embedded database
         graphDb = new GraphDatabaseFactory().
-            newEmbeddedDatabaseBuilder(STORE_DIR).
-            setConfig(GraphDatabaseSettings.node_keys_indexable, "name, title").
-            setConfig(GraphDatabaseSettings.node_auto_indexing, "true").
-            newGraphDatabase();
+            newEmbeddedDatabase(STORE_DIR);
+        
+        // node indices
         concerns = graphDb.index().forNodes("concerns");
         documents = graphDb.index().forNodes("documents");
         stakeholders = graphDb.index().forNodes("stakeholders");
         primaryEntities = graphDb.index().forNodes("primaryEntities");
+        viewpoints = graphDb.index().forNodes("viewpoints");
+
+        // provide for clean database shutdown for all close events
         registerShutdownHook(graphDb);
+
+        // allow for direct database queries with cyper
         cypher = new ExecutionEngine(graphDb);
     }
 
     public void addPrimaryEntity(String name) {
         Transaction tx = graphDb.beginTx();
         try {
-            IndexHits hits = primaryEntities.get("name", name);
+            IndexHits hits = primaryEntities.get(PRIMARY_ENTITY_KEY, name);
             if (hits.hasNext()) {
                 System.out.println("Duplicate node ignored");
             } else {
                 Node primaryEntity = graphDb.createNode();
-                primaryEntity.setProperty("name", name);
-                primaryEntities.add(primaryEntity, "name", name);
+                primaryEntity.setProperty(PRIMARY_ENTITY_KEY, name);
+                primaryEntities.add(primaryEntity, PRIMARY_ENTITY_KEY, name);
                 tx.success();
             }
         } finally {
@@ -131,7 +137,7 @@ public class ReqsDb {
         try {
             stakeholder.createRelationshipTo(concern, RelTypes.IDENTIFIES);
             stakeholders.putIfAbsent(stakeholder, 
-                    "name", stakeholder.getProperty("name"));
+                    PRIMARY_ENTITY_KEY, stakeholder.getProperty(PRIMARY_ENTITY_KEY));
             concerns.putIfAbsent(concern, 
                     DOCUMENT_KEY, concern.getProperty(DOCUMENT_KEY));
             tx.success();
@@ -150,6 +156,9 @@ public class ReqsDb {
         }
     }
 
+    /**
+     * Provides for clean database shutdown for all close events.
+     */
     private static void registerShutdownHook(
             final GraphDatabaseService graphDb) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
@@ -160,6 +169,9 @@ public class ReqsDb {
         });
             }
 
+    /**
+     * Shuts down the database.
+     */
     void shutDown() {
         graphDb.shutdown();
     }
