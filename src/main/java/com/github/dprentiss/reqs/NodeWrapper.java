@@ -7,10 +7,10 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
 /**
- * Parent class for wrapping nodes retrieved from a Reqs database.
+ * Parent class for wrapping {@link Node}s retrieved from a Reqs database.
  */
 public class NodeWrapper {
-    private final String NODE_TYPE = "Generic Node";
+    private static final String NODE_TYPE = "Node";
     private final Node node;
     private final Map<String, String> properties = 
         new HashMap<String, String>();
@@ -29,6 +29,8 @@ public class NodeWrapper {
     public Map<String, String> getProperties() {
         return properties;
     }
+
+    public 
 
     private GraphDatabaseService graphDb() {
         return node.getGraphDatabase();

@@ -3,11 +3,9 @@ package com.github.dprentiss.reqs;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 
 /**
- * Reqs is the the main class for the Reqs project.
+ * Main class for the Reqs project.
  *
  * @author David Prentiss
- * @version %I%, %G%
- * @since 1.0
  */
 public class Reqs {
     /**
@@ -39,7 +37,7 @@ public class Reqs {
         testDb.addIdentifies(testDb.getPrimaryEntity("David Prentiss"), testDb.getDocument("/project/ddp_concerns.txt"));
         results = testDb.cypher.execute("start n=node(*) return n");
         System.out.print(results.dumpToString());
-        NodeWrapper wrappedNode = new NodeWrapper(testDb.getDocument("/project/ddp_concerns.txt"));
-        System.out.println(wrappedNode);
+        Concern concern = new Concern(testDb.getDocument("/project/ddp_concerns.txt"));
+        System.out.println(concern);
     }
 }
