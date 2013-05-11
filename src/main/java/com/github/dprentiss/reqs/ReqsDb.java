@@ -13,21 +13,37 @@ import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
+import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.kernel.impl.util.FileUtils;
 
 public class ReqsDb {
     private final String STORE_DIR;
-    public GraphDatabaseService graphDb;
-    public ExecutionEngine cypher;
+    private static GraphDatabaseService graphDb;
+    private static Index<Node> concerns;
+    private static Index<Node> documents;
+    private static final String DOCUMENT_KEY = "URI";
+    private static Index<Node> primaryEntities;
+    private static Index<Node> stakeholders;
+    static ExecutionEngine cypher;
 
     // set to true to clear the database at STORE_DIR at startup 
     // FOR TESTING ONLY, ALL PREVIOUS DATA WILL BE LOST
     final boolean CLEAR_TEST_DB = false;
 
+    /**
+     * Possible relationships for a Reqs project.
+     */
     private static enum RelTypes implements RelationshipType {
-        IDENTIFIES, SATIFIES
+        IDENTIFIES, MEMBER
     }
 
+    /**
+     * Initialize the database.
+     * Creates an instance of {@link EmbeddedGraphDatabase}.
+     *
+     * @param dbPath path to database directory
+     */
     public ReqsDb(String dbPath) {
         STORE_DIR = dbPath;
 
@@ -44,65 +60,90 @@ public class ReqsDb {
             setConfig(GraphDatabaseSettings.node_keys_indexable, "name, title").
             setConfig(GraphDatabaseSettings.node_auto_indexing, "true").
             newGraphDatabase();
+        concerns = graphDb.index().forNodes("concerns");
+        documents = graphDb.index().forNodes("documents");
+        stakeholders = graphDb.index().forNodes("stakeholders");
+        primaryEntities = graphDb.index().forNodes("primaryEntities");
         registerShutdownHook(graphDb);
         cypher = new ExecutionEngine(graphDb);
     }
 
     public void addPrimaryEntity(String name) {
         Transaction tx = graphDb.beginTx();
-        Node entity;
         try {
-            entity = graphDb.createNode();
-            entity.setProperty("name", name);
-            tx.success();
+            IndexHits hits = primaryEntities.get("name", name);
+            if (hits.hasNext()) {
+                System.out.println("Duplicate node ignored");
+            } else {
+                Node primaryEntity = graphDb.createNode();
+                primaryEntity.setProperty("name", name);
+                primaryEntities.add(primaryEntity, "name", name);
+                tx.success();
+            }
         } finally {
             tx.finish();
         }
     }
 
     public Node getPrimaryEntity(String name) {
-        ExecutionResult result;
-        Iterator<Node> nCol;
-        Node entity = null;
-        result = cypher.execute(
-                "start n=node:node_auto_index(name = \"" + name + "\") return n");
-        nCol = result.columnAs("n");
-        if (nCol.hasNext()) {
-            entity = nCol.next();
+        Transaction tx = graphDb.beginTx();
+        try {
+        Node primaryEntity = primaryEntities.get(
+                "name", name).getSingle(); 
+        tx.success();
+        return primaryEntity;
+        } finally {
+        tx.finish();
         }
-        return entity;
     }
 
-    public Node getConcern(String title) {
-        ExecutionResult result;
-        Iterator<Node> nCol;
-        Node concern = null;
-        result = cypher.execute(
-                "start n=node:node_auto_index(title = \"" + title + "\") return n");
-        nCol = result.columnAs("n");
-        if (nCol.hasNext()) {
-            concern = nCol.next();
+    public void addDocument(String URI, String summary) {
+        Transaction tx = graphDb.beginTx();
+        try {
+            IndexHits hits = documents.get(DOCUMENT_KEY, URI);
+            if (hits.hasNext()) {
+                System.out.println("Duplicate document node ignored");
+            } else {
+            Node document = graphDb.createNode();
+            document.setProperty(DOCUMENT_KEY, URI);
+            document.setProperty("summary", summary);
+            documents.add(document, DOCUMENT_KEY, URI);
+            tx.success();
+            }
+        } finally {
+            tx.finish();
         }
-        return concern;
+    }
+
+    public Node getDocument(String URI) {
+        Transaction tx = graphDb.beginTx();
+        try {
+        Node document = documents.get(DOCUMENT_KEY, URI).getSingle(); 
+        tx.success();
+        return document;
+        } finally {
+        tx.finish();
+        }
     }
 
     public void addIdentifies(Node stakeholder, Node concern) {
         Transaction tx = graphDb.beginTx();
         try {
             stakeholder.createRelationshipTo(concern, RelTypes.IDENTIFIES);
+            stakeholders.putIfAbsent(stakeholder, 
+                    "name", stakeholder.getProperty("name"));
+            concerns.putIfAbsent(concern, 
+                    DOCUMENT_KEY, concern.getProperty(DOCUMENT_KEY));
             tx.success();
         } finally {
             tx.finish();
         }
     }
 
-    public void addConcern(String title, String body) {
+    public void addMemeber(Node member, Node organization) {
         Transaction tx = graphDb.beginTx();
-        Node newNode;
         try {
-            newNode = graphDb.createNode();
-            newNode.setProperty("title", title);
-            newNode.setProperty("body", body);
+            member.createRelationshipTo(organization, RelTypes.MEMBER);
             tx.success();
         } finally {
             tx.finish();
