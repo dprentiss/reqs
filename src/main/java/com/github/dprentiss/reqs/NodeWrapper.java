@@ -5,9 +5,11 @@ import java.util.HashMap;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
 
 /**
- * Parent class for wrapping {@link Node}s retrieved from a Reqs database.
+ * Parent class for wrapping a {@link Node} retrieved from a Reqs database.
  */
 public class NodeWrapper {
     private static final String NODE_TYPE = "Node";
@@ -22,16 +24,23 @@ public class NodeWrapper {
         }
     }
 
+    /**
+     * Returns the node associated with {@link NodeWrapper}.
+     */
     protected Node getNode() {
         return node;
     }
     
+    /**
+     * Returns all {@link Node} property keys and values.
+     */
     public Map<String, String> getProperties() {
         return properties;
     }
 
-    public 
-
+    /**
+     * Returns the {@GraphDatabaseService} that contians the node.
+     */
     private GraphDatabaseService graphDb() {
         return node.getGraphDatabase();
     }

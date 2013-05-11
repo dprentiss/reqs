@@ -3,12 +3,12 @@ package com.github.dprentiss.reqs;
 import org.neo4j.graphdb.Node;
 
 /**
- * {@link NodeWrapper} for concern nodes retrieved from a Reqs database.
+ * {@link NodeWrapper} for Document nodes retrieved from a Reqs database.
  */
-public class Concern extends Document {
-    private static final String NODE_TYPE = "Concern";
+public class Document extends NodeWrapper {
+    private static final String NODE_TYPE = "document";
 
-    Concern(Node node) {
+    Document(Node node) {
         super(node);
     }
 
