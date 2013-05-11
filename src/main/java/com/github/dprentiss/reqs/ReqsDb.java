@@ -2,10 +2,10 @@ package com.github.dprentiss.reqs;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Iterator;
+//import java.util.Iterator;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.cypher.javacompat.ExecutionResult;
+//import org.neo4j.cypher.javacompat.ExecutionResult;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -26,6 +26,7 @@ public class ReqsDb {
     private static Index<Node> primaryEntities;
     private static final String PRIMARY_ENTITY_KEY = "name";
     private static Index<Node> stakeholders;
+    private static Index<Node> viewpoints;
     static ExecutionEngine cypher;
 
     // set to true to clear the database at STORE_DIR at startup 
