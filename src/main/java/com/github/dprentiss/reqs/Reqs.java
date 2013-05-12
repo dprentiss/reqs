@@ -27,17 +27,43 @@ public class Reqs {
         // open database
         ReqsDb testDb = new ReqsDb(STORE_DIR);
 
+        // populate a database for testing
+        createTestDb(testDb);
+
         //Test
         ExecutionResult results; 
-        testDb.addPrimaryEntity("Mark Austin");
-        testDb.addPrimaryEntity("David Prentiss");
-        testDb.addDocument("/project/ddp_concerns.txt", "Student wants a good grade");
-        System.out.println(testDb.getPrimaryEntity("David Prentiss").getProperty("name"));
-        System.out.println(testDb.getDocument("/project/ddp_concerns.txt").getProperty("URI"));
-        testDb.addIdentifies(testDb.getPrimaryEntity("David Prentiss"), testDb.getDocument("/project/ddp_concerns.txt"));
         results = testDb.cypher.execute("start n=node(*) return n");
         System.out.print(results.dumpToString());
-        Concern concern = new Concern(testDb.getDocument("/project/ddp_concerns.txt"));
-        System.out.println(concern);
+    }
+
+    public static void createTestDb(ReqsDb testDb) {
+        // create some primary entities
+        String[] names = {
+            "Binyam Abeye",
+            "Chris Binkley",
+            "Sijia Cao",
+            "Peter Linnehan",
+            "Apurv Mittal",
+            "Iris Mu",
+            "Alan Nguyen",
+            "David Prentiss",
+            "Liang Qiao",
+            "James Vaughn",
+            "Hsi-Hsien Wei",
+            "Mark Austin",
+            "UMD",
+            "ENCE688R",
+            "ISR",
+            "CEE",
+            "Civil Systems",
+            "Team A",
+            "Team B"
+        };
+
+        for (int i = 0; i < names.length; i++) {
+            PrimaryEntity newEntity = 
+                new PrimaryEntity(testDb.createPrimaryEntity());
+            newEntity.setName(names[i]);
+        }
     }
 }

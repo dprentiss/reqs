@@ -12,6 +12,10 @@ public class PrimaryEntity extends NodeWrapper {
         super(node);
     }
 
+    public void setName(String name) {
+        super.setProperty("name", name);
+    }
+
     @Override
     public String toString() {
         String string = NODE_TYPE + " " + super.toString();

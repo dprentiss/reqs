@@ -6,12 +6,19 @@ import java.util.HashMap;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.traversal.Evaluators;
+import org.neo4j.graphdb.traversal.TraversalDescription;
+import org.neo4j.graphdb.traversal.Traverser;
+import org.neo4j.kernel.Traversal;
+import org.neo4j.kernel.Uniqueness;
+
 
 /**
  * Parent class for wrapping a {@link Node} retrieved from a Reqs database.
  */
-public class NodeWrapper {
+public abstract class NodeWrapper {
     private static final String NODE_TYPE = "Node";
     private final Node node;
     private final Map<String, String> properties = 
@@ -36,6 +43,32 @@ public class NodeWrapper {
      */
     public Map<String, String> getProperties() {
         return properties;
+    }
+
+    protected void setProperty(String key, String value) {
+        Transaction tx = graphDb().beginTx();
+        try {
+            node.setProperty(key, value);
+            tx.success();
+        } finally {
+            tx.finish();
+        }
+    }
+
+    public <T extends NodeWrapper> Iterable<T> getRels(RelationshipType relType) {
+        return getRelsByDepth(relType, 1);
+    }
+
+    public <T extends NodeWrapper> Iterable<T> getRelsByDepth(RelationshipType relType, int depth) {
+
+        TraversalDescription traversal = Traversal.description()
+            .breadthFirst()
+            .relationships(relType)
+            .uniqueness(Uniqueness.NODE_GLOBAL)
+            .evaluator(Evaluators.toDepth(depth))
+            .evaluator(Evaluators.excludeStartPosition());
+        Iterable<T> rels = null;
+        return rels;
     }
 
     /**
