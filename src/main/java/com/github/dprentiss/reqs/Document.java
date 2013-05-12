@@ -11,6 +11,14 @@ public class Document extends NodeWrapper {
     Document(Node node) {
         super(node);
     }
+    
+    public void setURI(String URI) {
+        super.setProperty("URI", URI);
+    }
+
+    public void setSummary(String summary) {
+        super.setProperty("summary", summary);
+    }
 
     @Override
     public String toString() {

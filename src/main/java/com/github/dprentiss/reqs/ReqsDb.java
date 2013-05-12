@@ -106,8 +106,8 @@ public class ReqsDb {
         Transaction tx = graphDb.beginTx();
         try {
             node = graphDb.createNode();
-            node.setProperty(NODE_TYPE_KEY, NodeTypes.DOCUMENT);
-            nodeIndexByType.add(node, NODE_TYPE_KEY, NodeTypes.DOCUMENT);
+            node.setProperty(NODE_TYPE_KEY, NodeTypes.DOCUMENT.name());
+            nodeIndexByType.add(node, NODE_TYPE_KEY, NodeTypes.DOCUMENT.name());
             tx.success();
         } finally {
             tx.finish();
