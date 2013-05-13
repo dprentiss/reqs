@@ -18,9 +18,10 @@ import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.graphdb.index.ReadableIndex;
 import org.neo4j.kernel.impl.util.FileUtils;
 
+/**
+ * Wraps a Neo4j database with methods appropriate for the requirements engineering domain.
+ */
 public class ReqsDb {
-    private final String STORE_DIR;
-    private static GraphDatabaseService graphDb;
     private static final String NODE_TYPE_KEY = "type";
     private static final String PRIMARY_ENTITY_KEY = "name";
     private static final String DOCUMENT_KEY = "URI";
@@ -28,6 +29,14 @@ public class ReqsDb {
         = NODE_TYPE_KEY + ","
         + DOCUMENT_KEY + ","
         + PRIMARY_ENTITY_KEY;
+
+    // declare database home
+    private static String STORE_DIR;
+
+    // declare database
+    private static GraphDatabaseService graphDb;
+
+    // declare object for cypher queries
     static ExecutionEngine cypher;
 
     // set to true to clear the database at STORE_DIR on startup 
@@ -40,7 +49,7 @@ public class ReqsDb {
      * Possible relationships for a Reqs project.
      */
     static enum RelTypes implements RelationshipType {
-        IDENTIFIES, MEMBER
+        IDENTIFIES, IS_MEMBER
     }
 
     /**
@@ -81,10 +90,13 @@ public class ReqsDb {
         // provide for clean database shutdown for all close events
         registerShutdownHook(graphDb);
 
-        // allow for direct database queries with cyper
+        // allow for direct database queries with cypher
         cypher = new ExecutionEngine(graphDb);
     }
 
+    /**
+     * Add a new primary entity node
+     */
     public Node createPrimaryEntity() {
         Node node;
         Transaction tx = graphDb.beginTx();
@@ -98,6 +110,9 @@ public class ReqsDb {
         return node;
     }
 
+    /**
+     * Add a new document node
+     */
     public Node createDocument() {
         Node node;
         Transaction tx = graphDb.beginTx();
@@ -111,6 +126,9 @@ public class ReqsDb {
         return node;
     }
 
+    /**
+     * Return a primary entity node
+     */
     public Node getPrimaryEntity(String name) {
         Transaction tx = graphDb.beginTx();
         try {
@@ -123,6 +141,9 @@ public class ReqsDb {
         }
     }
 
+    /**
+     * Return a documenth node
+     */
     public Node getDocument(String URI) {
         Transaction tx = graphDb.beginTx();
         try {
