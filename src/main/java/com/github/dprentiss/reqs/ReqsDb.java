@@ -15,38 +15,38 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import org.neo4j.graphdb.factory.GraphDatabaseSettings;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
+import org.neo4j.graphdb.index.ReadableIndex;
 import org.neo4j.kernel.impl.util.FileUtils;
 
 public class ReqsDb {
     private final String STORE_DIR;
     private static GraphDatabaseService graphDb;
-    private static String NODE_TYPE_KEY = "type";
-    private static Index<Node> concerns;
-    private static Index<Node> documents;
-    private static final String DOCUMENT_KEY = "URI";
-    private static Index<Node> people;
-    private static Index<Node> primaryEntities;
+    private static final String NODE_TYPE_KEY = "type";
     private static final String PRIMARY_ENTITY_KEY = "name";
-    private static Index<Node> stakeholders;
-    private static Index<Node> viewpoints;
-    private static Index<Node> nodeIndexByType;
+    private static final String DOCUMENT_KEY = "URI";
+    private static final String AUTO_INDEX_KEYS
+        = NODE_TYPE_KEY + ","
+        + DOCUMENT_KEY + ","
+        + PRIMARY_ENTITY_KEY;
     static ExecutionEngine cypher;
 
     // set to true to clear the database at STORE_DIR on startup 
     // FOR TESTING ONLY, ALL PREVIOUS DATA WILL BE LOST
     final boolean CLEAR_TEST_DB = true;
 
+    ReadableIndex<Node> autoNodeIndex;
+
     /**
      * Possible relationships for a Reqs project.
      */
-    private static enum RelTypes implements RelationshipType {
+    static enum RelTypes implements RelationshipType {
         IDENTIFIES, MEMBER
     }
 
     /**
      * Possible node types for a Reqs project.
      */
-    private static enum NodeTypes implements NodeType {
+    static enum NodeTypes implements NodeType {
         PRIMARY_ENTITY, DOCUMENT
     }
 
@@ -69,16 +69,14 @@ public class ReqsDb {
 
         // embedded database
         graphDb = new GraphDatabaseFactory().
-            newEmbeddedDatabase(STORE_DIR);
+            newEmbeddedDatabaseBuilder(STORE_DIR).
+            setConfig(GraphDatabaseSettings.node_keys_indexable, 
+                    AUTO_INDEX_KEYS).
+            setConfig(GraphDatabaseSettings.node_auto_indexing, "true").
+            newGraphDatabase();
         
         // node indices
-        concerns = graphDb.index().forNodes("concerns");
-        // documents = graphDb.index().forNodes("documents");
-        stakeholders = graphDb.index().forNodes("stakeholders");
-        people = graphDb.index().forNodes("people");
-        // primaryEntities = graphDb.index().forNodes("primaryEntities");
-        viewpoints = graphDb.index().forNodes("viewpoints");
-        nodeIndexByType = graphDb.index().forNodes("nodeIndexByType");
+        autoNodeIndex = graphDb.index().getNodeAutoIndexer().getAutoIndex();
 
         // provide for clean database shutdown for all close events
         registerShutdownHook(graphDb);
@@ -93,7 +91,6 @@ public class ReqsDb {
         try {
             node = graphDb.createNode();
             node.setProperty(NODE_TYPE_KEY, NodeTypes.PRIMARY_ENTITY.name());
-            nodeIndexByType.add(node, NODE_TYPE_KEY, NodeTypes.PRIMARY_ENTITY.name());
             tx.success();
         } finally {
             tx.finish();
@@ -107,7 +104,6 @@ public class ReqsDb {
         try {
             node = graphDb.createNode();
             node.setProperty(NODE_TYPE_KEY, NodeTypes.DOCUMENT.name());
-            nodeIndexByType.add(node, NODE_TYPE_KEY, NodeTypes.DOCUMENT.name());
             tx.success();
         } finally {
             tx.finish();
@@ -118,7 +114,7 @@ public class ReqsDb {
     public Node getPrimaryEntity(String name) {
         Transaction tx = graphDb.beginTx();
         try {
-        Node primaryEntity = primaryEntities.get(
+        Node primaryEntity = autoNodeIndex.get(
                 "name", name).getSingle(); 
         tx.success();
         return primaryEntity;
@@ -130,7 +126,7 @@ public class ReqsDb {
     public Node getDocument(String URI) {
         Transaction tx = graphDb.beginTx();
         try {
-        Node document = documents.get(DOCUMENT_KEY, URI).getSingle(); 
+        Node document = autoNodeIndex.get(DOCUMENT_KEY, URI).getSingle(); 
         tx.success();
         return document;
         } finally {
@@ -138,42 +134,33 @@ public class ReqsDb {
         }
     }
 
-    public void addIdentifies(Node stakeholder, Node concern) {
-        Transaction tx = graphDb.beginTx();
-        try {
-            stakeholder.createRelationshipTo(concern, RelTypes.IDENTIFIES);
-            stakeholders.putIfAbsent(stakeholder, 
-                    PRIMARY_ENTITY_KEY, stakeholder.getProperty(PRIMARY_ENTITY_KEY));
-            concerns.putIfAbsent(concern, 
-                    DOCUMENT_KEY, concern.getProperty(DOCUMENT_KEY));
-            tx.success();
-        } finally {
-            tx.finish();
-        }
+    /*
+    public Iterable<PrimaryEntity> getAllPrimaryEntities() {
+        return null;
     }
 
-    public void addMemeber(Node member, Node organization) {
+    public void addRelationship(Node from, Node to, RelationshipType relType) {
         Transaction tx = graphDb.beginTx();
         try {
-            member.createRelationshipTo(organization, RelTypes.MEMBER);
+            from.createRelationshipTo(to, relType);
             tx.success();
         } finally {
             tx.finish();
         }
     }
+    */
 
     /**
      * Provides for clean database shutdown for all close events.
      */
-    private static void registerShutdownHook(
-            final GraphDatabaseService graphDb) {
+    private static void registerShutdownHook(final GraphDatabaseService graphDb) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
             public void run() {
                 graphDb.shutdown();
             }
         });
-            }
+    }
 
     /**
      * Shuts down the database.

@@ -1,5 +1,8 @@
 package com.github.dprentiss.reqs;
 
+import java.util.List;
+import java.util.ArrayList;
+
 import org.neo4j.cypher.javacompat.ExecutionResult;
 
 /**
@@ -43,7 +46,15 @@ public class Reqs {
                 "*** All primary entities ***"
                 );
         testQuery(testDb, 
-                "start n=node:nodeIndexByType(type=\"PRIMARY_ENTITY\") return n"
+                "start n=node:node_auto_index(type=\"PRIMARY_ENTITY\") return n"
+                );
+        
+        //Test
+        System.out.println(
+                "*** David Prentiss ***"
+                );
+        testQuery(testDb, 
+                "start n=node:node_auto_index(name=\"David Prentiss\") return n"
                 );
     }
 
@@ -56,7 +67,6 @@ public class Reqs {
     }
 
     public static void createTestDb(ReqsDb testDb) {
-        // create some primary entities
         String[] names = {
             "Binyam Abeye",
             "Chris Binkley",
@@ -79,11 +89,18 @@ public class Reqs {
             "Team B"
         };
 
+        // create some primary entities
         for (int i = 0; i < names.length; i++) {
             PrimaryEntity newEntity = 
                 new PrimaryEntity(testDb.createPrimaryEntity());
             newEntity.setName(names[i]);
         }
+        
+        // add some memberships
+        Person Dave = new Person(testDb.getPrimaryEntity("David Prentiss"));
+        PrimaryEntity TeamA = 
+            new PrimaryEntity(testDb.getPrimaryEntity("Team A"));
+        TeamA.addMember(Dave);
 
         // create some documents
         String[] uris = {

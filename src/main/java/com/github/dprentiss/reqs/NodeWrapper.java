@@ -39,12 +39,18 @@ public abstract class NodeWrapper {
     }
     
     /**
-     * Returns all {@link Node} property keys and values.
+     * Returns all {@link Node} property keys and values of the associated node.
      */
-    public Map<String, String> getProperties() {
+    protected Map<String, String> getProperties() {
         return properties;
     }
 
+    /**
+     * Sets a property on the associated node.
+     *
+     * @param key Property key
+     * @param value Property value
+     */
     protected void setProperty(String key, String value) {
         Transaction tx = graphDb().beginTx();
         try {
@@ -54,12 +60,29 @@ public abstract class NodeWrapper {
             tx.finish();
         }
     }
-
-    public <T extends NodeWrapper> Iterable<T> getRels(RelationshipType relType) {
-        return getRelsByDepth(relType, 1);
+    
+    protected void addRelationshipTo(Node otherNode, RelationshipType relType) {
+        Transaction tx = graphDb().beginTx();
+        try {
+            node.createRelationshipTo(otherNode, relType);
+            tx.success();
+        } finally {
+            tx.finish();
+        }
     }
 
-    public <T extends NodeWrapper> Iterable<T> getRelsByDepth(RelationshipType relType, int depth) {
+    protected void addRelationshipFrom(Node otherNode, 
+            RelationshipType relType) {
+        Transaction tx = graphDb().beginTx();
+        try {
+            otherNode.createRelationshipTo(node, relType);
+            tx.success();
+        } finally {
+            tx.finish();
+        }
+    }
+
+    protected <T extends NodeWrapper> Iterable<T> getRelsByDepth(RelationshipType relType, int depth) {
 
         TraversalDescription traversal = Traversal.description()
             .breadthFirst()

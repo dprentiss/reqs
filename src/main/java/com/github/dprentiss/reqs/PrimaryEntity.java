@@ -13,7 +13,11 @@ public class PrimaryEntity extends NodeWrapper {
     }
 
     public void setName(String name) {
-        super.setProperty("name", name);
+        setProperty("name", name);
+    }
+
+    public void addMember(PrimaryEntity member) {
+        addRelationshipTo(member.getNode(), ReqsDb.RelTypes.MEMBER);
     }
 
     @Override
