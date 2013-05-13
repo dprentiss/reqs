@@ -17,18 +17,20 @@ import org.neo4j.kernel.Uniqueness;
 
 /**
  * Parent class for wrapping a {@link Node} retrieved from a Reqs database.
+ * 
+ * @author David Prentiss
  */
 public abstract class NodeWrapper {
     private static final String NODE_TYPE = "Node";
     private final Node node;
-    private final Map<String, String> properties = 
-        new HashMap<String, String>();
 
+    /**
+     * Constructor.
+     *
+     * @param node The underlying node of this object
+     */
     NodeWrapper(Node node) {
         this.node = node;
-        for (String s : node.getPropertyKeys()) {
-            properties.put(s, (String) node.getProperty(s));
-        }
     }
 
     /**
@@ -42,6 +44,10 @@ public abstract class NodeWrapper {
      * Returns all {@link Node} property keys and values of the associated node.
      */
     protected Map<String, String> getProperties() {
+        Map<String, String> properties = new HashMap<String, String>();
+        for (String s : node.getPropertyKeys()) {
+            properties.put(s, (String) node.getProperty(s));
+        }
         return properties;
     }
 
@@ -61,22 +67,29 @@ public abstract class NodeWrapper {
         }
     }
     
-    protected void addRelationshipTo(Node otherNode, RelationshipType relType) {
+    protected void addRelationshipTo(NodeWrapper otherNode, 
+            RelationshipType relType) {
         Transaction tx = graphDb().beginTx();
         try {
-            node.createRelationshipTo(otherNode, relType);
-            tx.success();
+            // nodes must not point to themselves
+            if (!this.equals(otherNode)) {
+                node.createRelationshipTo(otherNode.getNode(), relType);
+                tx.success();
+            }
         } finally {
             tx.finish();
         }
     }
 
-    protected void addRelationshipFrom(Node otherNode, 
+    protected void addRelationshipFrom(NodeWrapper otherNode, 
             RelationshipType relType) {
         Transaction tx = graphDb().beginTx();
         try {
-            otherNode.createRelationshipTo(node, relType);
-            tx.success();
+            // nodes must not point to themselves
+            if (!this.equals(otherNode)) {
+                otherNode.getNode().createRelationshipTo(node, relType);
+                tx.success();
+            }
         } finally {
             tx.finish();
         }
@@ -108,14 +121,13 @@ public abstract class NodeWrapper {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof NodeWrapper &&
-            node.equals(((NodeWrapper) o).getNode());
+        return o instanceof NodeWrapper && node.equals(((NodeWrapper)o).getNode());
     }
 
     @Override
     public String toString() {
-        String string = NODE_TYPE + "\n";
-        for (Map.Entry<String, String> entry : properties.entrySet()) {
+        String string = node.toString() + "\n";  
+        for (Map.Entry<String, String> entry : getProperties().entrySet()) {
             string += entry.getKey() + " : " + entry.getValue() + "\n";
         }
         return string; 

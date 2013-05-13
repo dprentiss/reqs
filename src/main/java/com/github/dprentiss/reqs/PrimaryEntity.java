@@ -17,12 +17,6 @@ public class PrimaryEntity extends NodeWrapper {
     }
 
     public void addMember(PrimaryEntity member) {
-        addRelationshipFrom(member.getNode(), ReqsDb.RelTypes.IS_MEMBER);
-    }
-
-    @Override
-    public String toString() {
-        String string = NODE_TYPE + " " + super.toString();
-        return string; 
+        addRelationshipFrom(member, ReqsDb.RelTypes.IS_MEMBER);
     }
 }

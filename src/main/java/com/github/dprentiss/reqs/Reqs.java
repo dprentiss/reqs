@@ -2,8 +2,15 @@ package com.github.dprentiss.reqs;
 
 import java.util.List;
 import java.util.ArrayList;
+import javax.swing.JFrame;
+
+import edu.uci.ics.jung.algorithms.layout.FRLayout;
+import edu.uci.ics.jung.graph.Graph;
+import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.visualization.VisualizationViewer;
 
 import org.neo4j.cypher.javacompat.ExecutionResult;
+
 
 /**
  * Main class for the Reqs project.
@@ -20,6 +27,10 @@ public class Reqs {
         final String STORE_DIR;
         final String TEST_DB = "Project Databases/testDb";
 
+        // set up JFrame
+        JFrame jf = new JFrame("ReqsView");
+        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
         // check args for database path
         if(args.length > 0) {
             STORE_DIR = args[0];
@@ -32,6 +43,21 @@ public class Reqs {
 
         // populate a database for testing
         createTestDb(testDb);
+        
+        // JUNG
+        Graph g = new DirectedSparseMultigraph();
+        Person Dave = new Person(testDb.getPrimaryEntity("David Prentiss"));
+        PrimaryEntity TeamA = 
+            new PrimaryEntity(testDb.getPrimaryEntity("Team A"));
+        g.addVertex(Dave);
+        g.addVertex(TeamA);
+        g.addEdge("IS_MEMBER", Dave, TeamA);
+        VisualizationViewer vv = new VisualizationViewer(new FRLayout(g));
+
+        jf.getContentPane().add(vv);
+        jf.pack();
+        jf.setVisible(true);
+
 
         //Test
         System.out.println(
@@ -67,6 +93,7 @@ public class Reqs {
     }
 
     public static void createTestDb(ReqsDb testDb) {
+        List<PrimaryEntity> entities = new ArrayList<PrimaryEntity>();
         String[] names = {
             "Binyam Abeye",
             "Chris Binkley",
@@ -94,8 +121,14 @@ public class Reqs {
             PrimaryEntity newEntity = 
                 new PrimaryEntity(testDb.createPrimaryEntity());
             newEntity.setName(names[i]);
+            entities.add(newEntity);
         }
-        
+
+        // add some memberships
+        for (int i = 0; i < entities.size(); i++) {
+            entities.get(12).addMember(entities.get(i));
+        }
+
         // add some memberships
         Person Dave = new Person(testDb.getPrimaryEntity("David Prentiss"));
         PrimaryEntity TeamA = 
