@@ -43,10 +43,10 @@ public abstract class NodeWrapper {
     /**
      * Returns all {@link Node} property keys and values of the associated node.
      */
-    protected Map<String, String> getProperties() {
-        Map<String, String> properties = new HashMap<String, String>();
+    protected Map<String, Object> getProperties() {
+        Map<String, Object> properties = new HashMap<String, Object>();
         for (String s : node.getPropertyKeys()) {
-            properties.put(s, (String) node.getProperty(s));
+            properties.put(s, node.getProperty(s));
         }
         return properties;
     }
@@ -71,7 +71,6 @@ public abstract class NodeWrapper {
      * Gets a property on the associated node.
      *
      * @param key Property key
-     * @param value Property value
      */
     protected Object getProperty(String key) {
         Object o = null;
@@ -154,7 +153,7 @@ public abstract class NodeWrapper {
     @Override
     public String toString() {
         String string = node.toString() + "\n";  
-        for (Map.Entry<String, String> entry : getProperties().entrySet()) {
+        for (Map.Entry<String, Object> entry : getProperties().entrySet()) {
             string += entry.getKey() + " : " + entry.getValue() + "\n";
         }
         return string; 

@@ -29,11 +29,6 @@ public class Reqs {
         final String STORE_DIR;
         final String TEST_DB = "Project Databases/testDb";
 
-        // set up JFrame
-        JFrame jf = new JFrame("ReqsView");
-        jf.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jf.setBackground(Color.WHITE);
-
         // check args for database path
         if(args.length > 0) {
             STORE_DIR = args[0];
@@ -46,20 +41,13 @@ public class Reqs {
 
         // populate a database for testing
         TestDbFactory.create(reqsDb);
+
+        // view the database
+        ReqsView view1 = new ReqsView(reqsDb);
+        view1.view();
+        ReqsView view2 = new ReqsView(reqsDb);
+        view2.view();
         
-        // initialize graph view
-        Graph g = new DirectedSparseMultigraph();
-        VisualizationViewer vv = new VisualizationViewer(new FRLayout(g));
-        vv.getRenderContext().setVertexLabelTransformer(new ToStringLabeller());
-
-        // add all nodes with relationships to the graph
-        for (Relationship rel : reqsDb.getAllRelationships()) {
-            g.addEdge(rel, rel.getStartNode(), rel.getEndNode());
-    }
-        jf.getContentPane().add(vv);
-        jf.pack();
-        jf.setVisible(true);
-
         //Test
         System.out.println(
                 "*** All nodes ***"
