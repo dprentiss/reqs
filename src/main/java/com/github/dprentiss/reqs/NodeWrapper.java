@@ -57,7 +57,7 @@ public abstract class NodeWrapper {
      * @param key Property key
      * @param value Property value
      */
-    protected void setProperty(String key, String value) {
+    protected void setProperty(String key, Object value) {
         Transaction tx = graphDb().beginTx();
         try {
             node.setProperty(key, value);
@@ -67,6 +67,27 @@ public abstract class NodeWrapper {
         }
     }
     
+    /**
+     * Gets a property on the associated node.
+     *
+     * @param key Property key
+     * @param value Property value
+     */
+    protected Object getProperty(String key) {
+        Object o = null;
+        Transaction tx = graphDb().beginTx();
+        try {
+            o = node.getProperty(key);
+            tx.success();
+        } finally {
+            tx.finish();
+        }
+        return o;
+    }
+    
+    /**
+     * Create a relationship from this underlying node to another.
+     */
     protected void addRelationshipTo(NodeWrapper otherNode, 
             RelationshipType relType) {
         Transaction tx = graphDb().beginTx();
@@ -81,6 +102,9 @@ public abstract class NodeWrapper {
         }
     }
 
+    /**
+     * Create a relationship to this underlying node from another.
+     */
     protected void addRelationshipFrom(NodeWrapper otherNode, 
             RelationshipType relType) {
         Transaction tx = graphDb().beginTx();
@@ -95,6 +119,9 @@ public abstract class NodeWrapper {
         }
     }
 
+    /**
+     * TODO
+     */
     protected <T extends NodeWrapper> Iterable<T> getRelsByDepth(RelationshipType relType, int depth) {
 
         TraversalDescription traversal = Traversal.description()

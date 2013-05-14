@@ -9,6 +9,7 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -17,6 +18,7 @@ import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
 import org.neo4j.graphdb.index.ReadableIndex;
 import org.neo4j.kernel.impl.util.FileUtils;
+import org.neo4j.tooling.GlobalGraphOperations;
 
 /**
  * Wraps a Neo4j database with methods appropriate for the requirements engineering domain.
@@ -92,6 +94,14 @@ public class ReqsDb {
 
         // allow for direct database queries with cypher
         cypher = new ExecutionEngine(graphDb);
+    }
+
+    public Iterable<Node> getAllNodes() {
+        return GlobalGraphOperations.at(graphDb).getAllNodes();
+    }
+
+    public Iterable<Relationship> getAllRelationships() {
+        return GlobalGraphOperations.at(graphDb).getAllRelationships();
     }
 
     /**

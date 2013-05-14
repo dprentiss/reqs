@@ -12,6 +12,10 @@ public class Concern extends Document {
         super(node);
     }
 
+    void addStakeholder(PrimaryEntity stakeholder) {
+        addRelationshipFrom(stakeholder, ReqsDb.RelTypes.IDENTIFIES);
+    }
+
     @Override
     public String toString() {
         String string = NODE_TYPE + " " + super.toString();

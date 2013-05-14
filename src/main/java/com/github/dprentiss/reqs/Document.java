@@ -13,11 +13,19 @@ public class Document extends NodeWrapper {
     }
     
     public void setURI(String URI) {
-        super.setProperty("URI", URI);
+        setProperty("URI", URI);
+    }
+
+    public String getURI() {
+        return (String)super.getProperty("URI");
     }
 
     public void setSummary(String summary) {
-        super.setProperty("summary", summary);
+        setProperty("summary", summary);
+    }
+
+    public String getSummary() {
+        return (String)super.getProperty("summary");
     }
 
     @Override
