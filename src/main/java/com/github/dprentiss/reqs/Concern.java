@@ -18,7 +18,9 @@ public class Concern extends Document {
 
     @Override
     public String toString() {
-        String string = NODE_TYPE + " " + super.toString();
-        return string; 
+        /*
+        return NODE_TYPE + " " + super.toString();
+        */
+        return getURI();
     }
 }

@@ -16,6 +16,10 @@ public class PrimaryEntity extends NodeWrapper {
         setProperty("name", name);
     }
 
+    public String getName() {
+        return (String) getProperty("name");
+    }
+
     public void addMember(PrimaryEntity member) {
         addRelationshipFrom(member, ReqsDb.RelTypes.IS_MEMBER);
     }

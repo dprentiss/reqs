@@ -1,18 +1,6 @@
 package com.github.dprentiss.reqs;
 
-import java.awt.Color;
-import javax.swing.JFrame;
-
-import edu.uci.ics.jung.algorithms.layout.*;
-import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
-import edu.uci.ics.jung.visualization.VisualizationViewer;
-import edu.uci.ics.jung.visualization.decorators.ToStringLabeller;
-
 import org.neo4j.cypher.javacompat.ExecutionResult;
-import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.Node;
-
 
 /**
  * Main class for the Reqs project.
@@ -45,8 +33,6 @@ public class Reqs {
         // view the database
         ReqsView view1 = new ReqsView(reqsDb);
         view1.view();
-        ReqsView view2 = new ReqsView(reqsDb);
-        view2.view();
         
         //Test
         System.out.println(

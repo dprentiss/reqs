@@ -50,14 +50,14 @@ public class ReqsDb {
     /**
      * Possible relationships for a Reqs project.
      */
-    static enum RelTypes implements RelationshipType {
+    public static enum RelTypes implements RelationshipType {
         IDENTIFIES, IS_MEMBER
     }
 
     /**
      * Possible node types for a Reqs project.
      */
-    static enum NodeTypes implements NodeType {
+    public static enum NodeTypes implements NodeType {
         PRIMARY_ENTITY, DOCUMENT
     }
 

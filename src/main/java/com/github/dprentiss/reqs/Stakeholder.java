@@ -5,8 +5,8 @@ import org.neo4j.graphdb.Node;
 /**
  * {@link NodeWrapper} for Stakeholder nodes retrieved from a Reqs database.
  */
-public class Stakeholder extends NodeWrapper {
-    private static final String NODE_TYPE = "stakeholder";
+public class Stakeholder extends PrimaryEntity {
+    private static final String NODE_TYPE = "Stakeholder";
 
     Stakeholder(Node node) {
         super(node);
@@ -14,7 +14,9 @@ public class Stakeholder extends NodeWrapper {
 
     @Override
     public String toString() {
-        String string = NODE_TYPE + " " + super.toString();
-        return string; 
+        /*
+        return NODE_TYPE + " " + super.toString();
+        */
+        return getName();
     }
 }
