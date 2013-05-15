@@ -147,7 +147,8 @@ public abstract class NodeWrapper {
 
     @Override
     public boolean equals(Object o) {
-        return o instanceof NodeWrapper && node.equals(((NodeWrapper)o).getNode());
+        return o instanceof NodeWrapper 
+            && node.equals(((NodeWrapper)o).getNode());
     }
 
     @Override

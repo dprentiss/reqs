@@ -23,4 +23,9 @@ public class PrimaryEntity extends NodeWrapper {
     public void addMember(PrimaryEntity member) {
         addRelationshipFrom(member, ReqsDb.RelTypes.IS_MEMBER);
     }
+
+    @Override
+    public String toString() {
+        return getName();
+    }
 }

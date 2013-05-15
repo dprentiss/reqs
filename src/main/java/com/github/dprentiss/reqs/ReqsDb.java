@@ -43,7 +43,7 @@ public class ReqsDb {
 
     // set to true to clear the database at STORE_DIR on startup 
     // FOR TESTING ONLY, ALL PREVIOUS DATA WILL BE LOST
-    final boolean CLEAR_TEST_DB = true;
+    final boolean CLEAR_TEST_DB = false;
 
     ReadableIndex<Node> autoNodeIndex;
 
@@ -51,7 +51,7 @@ public class ReqsDb {
      * Possible relationships for a Reqs project.
      */
     public static enum RelTypes implements RelationshipType {
-        IDENTIFIES, IS_MEMBER
+        IDENTIFIES, IS_MEMBER, COVERS
     }
 
     /**

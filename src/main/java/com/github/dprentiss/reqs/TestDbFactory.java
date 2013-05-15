@@ -169,13 +169,30 @@ public class TestDbFactory {
         // create some stakeholders and concerns by connecting
         // primary entities to documents with the IDENTIFIES relationship
         int numPE;
+        List<Concern> concerns = new ArrayList<Concern>();
         for (Document d : docs) {
             if (d.getURI().toLowerCase().contains("concern")) {
                 Concern newConcern = new Concern(d.getNode());
+                concerns.add(newConcern);
                 numPE = rand.nextInt(4) + 1;
                 for (int i = 0; i < numPE; i++) {
                     newConcern.addStakeholder(
                             entities.get(rand.nextInt(entities.size())));
+                }
+            }
+
+        }
+
+        // create some view point by connecting documents to
+        // documents with the COVERS relationship
+        int numVP;
+        for (Document d : docs) {
+            if (d.getURI().toLowerCase().contains("viewpoint")) {
+                Viewpoint newViewpoint = new Viewpoint(d.getNode());
+                numVP = rand.nextInt(4) + 1;
+                for (int i = 0; i < numVP; i++) {
+                    newViewpoint.addConcern(
+                            concerns.get(rand.nextInt(concerns.size())));
                 }
             }
         }

@@ -28,7 +28,7 @@ public class Reqs {
         ReqsDb reqsDb = new ReqsDb(STORE_DIR);
 
         // populate a database for testing
-        TestDbFactory.create(reqsDb);
+        // TestDbFactory.create(reqsDb);
 
         // view the database
         ReqsView view1 = new ReqsView(reqsDb);
