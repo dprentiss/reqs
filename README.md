@@ -6,7 +6,7 @@ The challenge presented by this task is to capture and effectively traverse the 
 
 ##Getting Started
 ###Build and Install
-1. Install Maven
+1. Install Maven [instructions here](http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html)
 2. Unzip the zipfile or tarball to the directory of your choice
 3. Change to that directory
 4. Run
