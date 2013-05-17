@@ -56,7 +56,7 @@ public Evaluation evaluate(final Path path) {
     return Evaluation.of(included, continued);
 }
 ```
-For each path emination from the node in question the Traveral evaluates where to include the path and whether to continue on the current branch.
+For each path eminating from the node in question the Traveral evaluates where to include the path and whether to continue on the current branch.
 
 ###Domain Entities
 
@@ -71,3 +71,11 @@ That is, if the user clicks on a viewpoint, Reqs will highlight the links to the
 Currently, if a user clicks on an individual, Reqs will display that individuals concerns and the concerns of the organizations of which he is a memeber.
 
 ##Next Steps
+
+Future versions of Reqs will likely include these improvements.
+
+1. Database editor / controller - It should be straight-forward to allow the user to add and remove entities and relationships from the view.
+
+2. More Entities and Relationships - In order to capture the complexty of the system design process, Reqs will need NodeWrapper classes to represent the full set of entities and relationships, as well as the Traversals to query them.
+
+3. Better and Additional Views - One major drawback of the current view is that Relationships are not labelled. Labeling them was infeasible due to the volume of relationships presented. Future versions will have better labels and the ability to hide some non-essential information.
