@@ -50,5 +50,6 @@ public Evaluation evaluate(final Path path) {
     return Evaluation.of(included, continued);
 }
 ```
+For each path emination from the node in question the Traveral evaluates where to include the path and whether to continue on the current branch.
 
-3. An Index maps from Properties to either Nodes or Relationships.
+3. An Index maps from Properties to either Nodes or Relationships. We are also able to use the database in a more traditional fashion. An Index keeps track of every entity by name.
