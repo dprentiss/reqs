@@ -17,7 +17,8 @@ The challenge presented by this task is to capture and effectively traverse the 
 
 ##The Model
 
-Reqs holds a single instance of a [Graph Database](http://docs.neo4j.org/chunked/stable/what-is-a-graphdb.html) provided by [Neo4j](http://neo4j.org/).
+Reqs holds a single instance of a [property graph database](http://www.neo4j.org/learn/graphdatabase) provided by [Neo4j](http://neo4j.org/). Neo4j has three aspects that are important to the Reqs model.
+1. A graph database has two kinds of records: Nodes and Relationships.
 
 ``` java
 public Iterable<Relationship> getRelationships() {
