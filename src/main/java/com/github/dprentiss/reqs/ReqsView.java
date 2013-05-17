@@ -22,7 +22,7 @@ import org.apache.commons.collections15.map.LazyMap;
 
 import edu.uci.ics.jung.algorithms.layout.*;
 import edu.uci.ics.jung.graph.Graph;
-import edu.uci.ics.jung.graph.DirectedSparseMultigraph;
+import edu.uci.ics.jung.graph.DirectedSparseGraph;
 import edu.uci.ics.jung.visualization.VisualizationModel;
 import edu.uci.ics.jung.visualization.DefaultVisualizationModel;
 import edu.uci.ics.jung.visualization.VisualizationViewer;
@@ -43,7 +43,7 @@ import org.neo4j.graphdb.Node;
  */
 public class ReqsView {
     private ReqsDb reqsDb;
-    private Graph graph;
+    private Graph<NodeWrapper, Relationship> graph;
     private Dimension graphSize;
     private VisualizationModel<NodeWrapper, Relationship> vm;
     private VisualizationViewer<NodeWrapper, Relationship> vv;
@@ -70,7 +70,7 @@ public class ReqsView {
         vertexPaints = LazyMap.<NodeWrapper, Paint>decorate(
                 new HashMap<NodeWrapper, Paint>(),
                 new ConstantTransformer(Color.white));
-        graph = new DirectedSparseMultigraph();
+        graph = new DirectedSparseGraph<NodeWrapper, Relationship>();
         graphSize = new Dimension(1200, 800);
         layout = new AggregateLayout<NodeWrapper, Relationship>(
                 new FRLayout<NodeWrapper, Relationship>(graph));
@@ -88,11 +88,13 @@ public class ReqsView {
                 if (subject instanceof NodeWrapper) {
                     NodeWrapper vertex = (NodeWrapper) subject;
                     if (vv.getPickedVertexState().isPicked(vertex)) {
-                        System.out.println("Vertex " + vertex
-                            + " is now selected");
+                        for (Relationship rel : vertex.getRelationships()) {
+                            edgePaints.put(rel, Color.black);
+                        }
                     } else {
-                        System.out.println("Vertex " + vertex
-                            + " no longer selected");
+                        for (Relationship rel : graph.getEdges()) {;
+                            edgePaints.put(rel, Color.lightGray);
+                        }
                     }
                 }
             }
@@ -179,7 +181,7 @@ public class ReqsView {
     private void cluster(Set<NodeWrapper> group, AggregateLayout<NodeWrapper, Relationship> layout, Dimension layoutSize, Point2D center, Color color) {
 
         Graph<NodeWrapper, Relationship> subGraph =
-            DirectedSparseMultigraph
+            DirectedSparseGraph
             .<NodeWrapper, Relationship>getFactory()
             .create();
 

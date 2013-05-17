@@ -2,12 +2,16 @@ package com.github.dprentiss.reqs;
 
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Iterator;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Path;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.traversal.Evaluation;
+import org.neo4j.graphdb.traversal.Evaluator;
 import org.neo4j.graphdb.traversal.Evaluators;
 import org.neo4j.graphdb.traversal.TraversalDescription;
 import org.neo4j.graphdb.traversal.Traverser;
@@ -121,16 +125,39 @@ public abstract class NodeWrapper {
     /**
      * TODO
      */
-    protected <T extends NodeWrapper> Iterable<T> getRelsByDepth(RelationshipType relType, int depth) {
+    public Iterable<Relationship> getRelationships() {
 
         TraversalDescription traversal = Traversal.description()
             .breadthFirst()
-            .relationships(relType)
-            .uniqueness(Uniqueness.NODE_GLOBAL)
-            .evaluator(Evaluators.toDepth(depth))
-            .evaluator(Evaluators.excludeStartPosition());
-        Iterable<T> rels = null;
-        return rels;
+            .evaluator(new Evaluator() {
+                @Override
+                public Evaluation evaluate(final Path path) {
+                    if (path.length() == 0) {
+                        return Evaluation.EXCLUDE_AND_CONTINUE;
+                    }
+                    boolean isOutgoingIS_MEMBER = (
+                        path.lastRelationship().getEndNode() == 
+                        path.endNode() &&
+                        (path.lastRelationship()
+                        .isType(ReqsDb.RelTypes.IS_MEMBER)));
+                    boolean isRelTypeUnique = true;
+                    Iterator<Relationship> i = 
+                path.reverseRelationships().iterator();
+                    i.next();
+                    while (i.hasNext()) {
+                        if (i.next().isType(path.lastRelationship()
+                                .getType())) {
+                            isRelTypeUnique = false;
+                            break;
+                        }
+                    }
+                    boolean included = isOutgoingIS_MEMBER || isRelTypeUnique;
+                    boolean continued = included;
+                    return Evaluation.of(included, continued);
+                }
+            });
+                
+        return traversal.traverse(node).relationships();
     }
 
     /**
