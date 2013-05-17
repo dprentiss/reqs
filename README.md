@@ -2,7 +2,8 @@ reqs
 ====
 
 Requirements Engineering Query System
-''' java
+
+``` java
     public Iterable<Relationship> getRelationships() {
         TraversalDescription traversal = Traversal.description()
             .breadthFirst()
@@ -33,4 +34,4 @@ Requirements Engineering Query System
                     return Evaluation.of(included, continued);
                 }
             });
-''' java
+```
