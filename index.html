@@ -1,0 +1,127 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Reqs by dprentiss</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/pygment_trac.css">
+    <script src="javascripts/scale.fix.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1 class="header">Reqs</h1>
+        <p class="header">Requirements Engineering Query System</p>
+
+        <ul>
+          <li class="download"><a class="buttons" href="https://github.com/dprentiss/reqs/zipball/master">Download ZIP</a></li>
+          <li class="download"><a class="buttons" href="https://github.com/dprentiss/reqs/tarball/master">Download TAR</a></li>
+          <li><a class="buttons github" href="https://github.com/dprentiss/reqs">View On GitHub</a></li>
+        </ul>
+
+        <p class="header">This project is maintained by <a class="header name" href="https://github.com/dprentiss">dprentiss</a></p>
+
+
+      </header>
+      <section>
+        <h1>Requirements Engineering Query System</h1>
+
+<p>Reqs is a proof-of-concept application that demonstrates the ability of graph- based databases to model and query complex entity-relationship concepts. In this case, an embedded database based on Neo4j is used to represent Stakeholders, Concerns, and Viewpoints as described in IEEE 1471 standard describing the architecture of a software-intensive system. Although the application at present is particular to architecture description, it is being developed with full-lifecycle, general systems in mind.  </p>
+
+<p>The challenge presented by this task is to capture and effectively traverse the many-to-many relationships between the entities. For this initial version of Reqs, the user is presented with a graph-based visual representation of the Stakeholders, Concerns, and Viewpoints in a hypothetical architecture description. The user can graphically select one or more entities and the system responds by highlighting the entities that are related to it.  </p>
+
+<h3>Getting Started</h3>
+
+<ol>
+<li>Install Maven. <a href="http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html">instructions here</a>
+</li>
+<li>Unzip the zipfile or tarball to the directory of your choice.</li>
+<li>Change to that directory.</li>
+<li>
+<p>Run:</p>
+
+<pre><code>mvn clean install
+</code></pre>
+</li>
+<li>
+<p>Now run:</p>
+
+<pre><code>java -jar target/reqs-1.0-jar-with-dependencies.jar
+</code></pre>
+</li>
+</ol><h2>The Model</h2>
+
+<h3>Graph Database</h3>
+
+<p>Reqs holds a single instance of a <a href="http://www.neo4j.org/learn/graphdatabase">property graph database</a> provided by <a href="http://neo4j.org/">Neo4j</a>. Neo4j has three aspects that are important to the Reqs model.</p>
+
+<ol>
+<li><p>A graph database has two kinds of records: Nodes and Relationships. While information can be stored in a database any number of ways, Reqs makes use of the obvious, one-to-one correspondence between entities/nodes and relationship/relationship. It also makes use of the ability to assign properties to each node and relationship. A property is simply a key/value pair such as <code>{"age":21}</code>. </p></li>
+<li><p>An Index maps from Properties to either Nodes or Relationships. We are also able to use the database in a more traditional fashion. An Index keeps track of every entity by name.</p></li>
+<li><p>A Traversal navigates the graph according to predetermined rules. Reqs uses Traversals to find out which entities are related to each other. For example, the Traversal knows to return only the Concerns identified by a Stakeholder in question, though there may be a path in the graph between him and other Concerns.
+The code below is the evaluator used to define the behavior of the Traversal used to identify relationships in Reqs. 
+(from <a href="https://github.com/dprentiss/reqs/blob/master/src/main/java/com/github/dprentiss/reqs/NodeWrapper.java">NodeWrapper.java</a>)</p></li>
+</ol><div class="highlight"><pre><span class="kd">public</span> <span class="n">Evaluation</span> <span class="nf">evaluate</span><span class="o">(</span><span class="kd">final</span> <span class="n">Path</span> <span class="n">path</span><span class="o">)</span> <span class="o">{</span>
+    <span class="k">if</span> <span class="o">(</span><span class="n">path</span><span class="o">.</span><span class="na">length</span><span class="o">()</span> <span class="o">==</span> <span class="mi">0</span><span class="o">)</span> <span class="o">{</span>
+        <span class="k">return</span> <span class="n">Evaluation</span><span class="o">.</span><span class="na">EXCLUDE_AND_CONTINUE</span><span class="o">;</span>
+    <span class="o">}</span>
+    <span class="kt">boolean</span> <span class="n">isOutgoingIS_MEMBER</span> <span class="o">=</span> <span class="o">(</span>
+        <span class="n">path</span><span class="o">.</span><span class="na">lastRelationship</span><span class="o">().</span><span class="na">getEndNode</span><span class="o">()</span> <span class="o">==</span> 
+        <span class="n">path</span><span class="o">.</span><span class="na">endNode</span><span class="o">()</span> <span class="o">&amp;&amp;</span>
+        <span class="o">(</span><span class="n">path</span><span class="o">.</span><span class="na">lastRelationship</span><span class="o">()</span>
+    <span class="o">.</span><span class="na">isType</span><span class="o">(</span><span class="n">ReqsDb</span><span class="o">.</span><span class="na">RelTypes</span><span class="o">.</span><span class="na">IS_MEMBER</span><span class="o">)));</span>
+    <span class="kt">boolean</span> <span class="n">isRelTypeUnique</span> <span class="o">=</span> <span class="kc">true</span><span class="o">;</span>
+    <span class="n">Iterator</span><span class="o">&lt;</span><span class="n">Relationship</span><span class="o">&gt;</span> <span class="n">i</span> <span class="o">=</span> 
+        <span class="n">path</span><span class="o">.</span><span class="na">reverseRelationships</span><span class="o">().</span><span class="na">iterator</span><span class="o">();</span>
+    <span class="n">i</span><span class="o">.</span><span class="na">next</span><span class="o">();</span>
+    <span class="k">while</span> <span class="o">(</span><span class="n">i</span><span class="o">.</span><span class="na">hasNext</span><span class="o">())</span> <span class="o">{</span>
+        <span class="k">if</span> <span class="o">(</span><span class="n">i</span><span class="o">.</span><span class="na">next</span><span class="o">().</span><span class="na">isType</span><span class="o">(</span><span class="n">path</span><span class="o">.</span><span class="na">lastRelationship</span><span class="o">()</span>
+                <span class="o">.</span><span class="na">getType</span><span class="o">()))</span> <span class="o">{</span>
+            <span class="n">isRelTypeUnique</span> <span class="o">=</span> <span class="kc">false</span><span class="o">;</span>
+            <span class="k">break</span><span class="o">;</span>
+        <span class="o">}</span>
+    <span class="o">}</span>
+    <span class="kt">boolean</span> <span class="n">included</span> <span class="o">=</span> <span class="n">isOutgoingIS_MEMBER</span> <span class="o">||</span> <span class="n">isRelTypeUnique</span><span class="o">;</span>
+    <span class="kt">boolean</span> <span class="n">continued</span> <span class="o">=</span> <span class="n">included</span><span class="o">;</span>
+    <span class="k">return</span> <span class="n">Evaluation</span><span class="o">.</span><span class="na">of</span><span class="o">(</span><span class="n">included</span><span class="o">,</span> <span class="n">continued</span><span class="o">);</span>
+<span class="o">}</span>
+</pre></div>
+
+<p>For each path emanating from the node in question the Traversal evaluates where to include the path and whether to continue on the current branch.</p>
+
+<h3>Domain Entities</h3>
+
+<p>The Node/Relationship data store plus the Traversal Framework are already useful tools for entity/relationship models. But Reqs needs for entities to have behaviors and, more generally, be represented as instances of various classes. To do this Reqs wraps each node in a class.
+<a href="https://github.com/dprentiss/reqs/blob/master/src/main/java/com/github/dprentiss/reqs/NodeWrapper.java">NodeWrapper.java</a>
+provides an abstract extension point for this process. Since each node has a unique ID managed by the database. Reqs passes this ID to the NodeWrapper as its sole property. As such, the node and relationships in the database represent the data associated with each entity and the NodeWrappers represent the behavior.</p>
+
+<h2>The View</h2>
+
+<p>Reqs uses <a href="http://jung.sourceforge.net/">JUNG</a> to display the model to the user. In future versions, it will also provide a more complete user interface. As it stands, Reqs allows the user to pick any number of entities, and automatically displays the associated entities.
+That is, if the user clicks on a viewpoint, Reqs will highlight the links to the concerns it covers and the people and organizations that identified the concern.
+Currently, if a user clicks on an individual, Reqs will display that individuals concerns and the concerns of the organizations of which he is a member.</p>
+
+<h2>Next Steps</h2>
+
+<p>Future versions of Reqs will likely include these improvements.</p>
+
+<ol>
+<li><p>Database editor / controller - It should be straight-forward to allow the user to add and remove entities and relationships from the view.</p></li>
+<li><p>More Entities and Relationships - In order to capture the complexity of the system design process, Reqs will need NodeWrapper classes to represent the full set of entities and relationships, as well as the Traversals to query them.</p></li>
+<li><p>Better and Additional Views - One major drawback of the current view is that Relationships are not labelled. Labeling them was infeasible due to the volume of relationships presented. Future versions will have better labels and the ability to hide some non-essential information.</p></li>
+</ol>
+      </section>
+      <footer>
+        <p><small>Hosted on <a href="https://pages.github.com">GitHub Pages</a> using the Dinky theme</small></p>
+      </footer>
+    </div>
+    <!--[if !IE]><script>fixScale(document);</script><![endif]-->
+		
+  </body>
+</html>
