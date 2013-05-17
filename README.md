@@ -5,16 +5,17 @@ Reqs is a proof-of-concept application that demonstrates the ability of graph- b
 The challenge presented by this task is to capture and effectively traverse the many-to-many relationships between the entities. For this initial version of Reqs, the user is presented with a graph-based visual representation of the Stakeholders, Concerns, and Viewpoints in a hypothetical architecture description. The user can graphically select one or more entities and the system responds by highlighting the entities that are related to it.  
 
 ##Getting Started
-###Build and Install
-1. Install Maven [instructions here](http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html)
-2. Unzip the zipfile or tarball to the directory of your choice
-3. Change to that directory
-4. Run
+1. Install Maven. [instructions here](http://maven.apache.org/guides/getting-started/maven-in-five-minutes.html)
+2. Unzip the zipfile or tarball to the directory of your choice.
+3. Change to that directory.
+4. Run:
 
         mvn clean install
-5. Now run
+5. Now run:
 
         java -jar target/reqs-1.0-jar-with-dependencies.jar
+
+##The Model
 
 
 ``` java
