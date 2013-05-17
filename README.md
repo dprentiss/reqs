@@ -11,10 +11,10 @@ The challenge presented by this task is to capture and effectively traverse the 
 3. Change to that directory
 4. Run
 
-    mvn clean install
+        mvn clean install
 5. Now run
 
-    java -jar target/reqs-1.0-jar-with-dependencies.jar
+        java -jar target/reqs-1.0-jar-with-dependencies.jar
 
 
 ``` java
