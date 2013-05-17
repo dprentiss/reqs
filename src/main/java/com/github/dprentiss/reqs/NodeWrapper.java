@@ -22,6 +22,17 @@ import org.neo4j.kernel.Uniqueness;
 /**
  * Parent class for wrapping a {@link Node} retrieved from a Reqs database.
  * 
+ * This class provides the domain specificity for all graph database objects.
+ * Each instance contians a reference to a single underlying node and provides
+ * methods that allow that node to represent the domain specific entities
+ * present in the model.
+ *
+ * This class also isolates domain entities from the details of database
+ * transactions. That is, the database should be transparent to extentions of
+ * this class.
+ *
+ * TODO Add other relationship Traversals
+ *
  * @author David Prentiss
  */
 public abstract class NodeWrapper {
@@ -90,6 +101,9 @@ public abstract class NodeWrapper {
     
     /**
      * Create a relationship from this underlying node to another.
+     *
+     * @param otherNode The node to create a realationship with.
+     * @param relType The type of relation to create.
      */
     protected void addRelationshipTo(NodeWrapper otherNode, 
             RelationshipType relType) {
@@ -107,6 +121,9 @@ public abstract class NodeWrapper {
 
     /**
      * Create a relationship to this underlying node from another.
+     *
+     * @param otherNode The node to create a realationship with.
+     * @param relType The type of relation to create.
      */
     protected void addRelationshipFrom(NodeWrapper otherNode, 
             RelationshipType relType) {
@@ -123,7 +140,20 @@ public abstract class NodeWrapper {
     }
 
     /**
+     * Get domain specific relationships of all entities connected to an 
+     * entitiy in question.
+     * 
+     * This method is domain specific in that it returns nodes that are related
+     * to each other in ways that are meaningful to the archetecture description.
+     * For example, this method called for a Viewpoint returns the associated 
+     * concerns and stakeholders but not other Viewpoints, though they are
+     * connected on the graph.
      *
+     * For more information on implementation of Traversals see
+     * {@see <a href="http://docs.neo4j.org/chunked/milestone/tutorial-traversal.html">The Traversal Framework</a>}
+     *
+     * @return All entinties related to this one in a domain specifically
+     * meaningfull way.
      */
     public Iterable<Relationship> getRelationships() {
         TraversalDescription traversal = Traversal.description()
@@ -166,6 +196,9 @@ public abstract class NodeWrapper {
         return node.getGraphDatabase();
     }
 
+    /**
+     * @return The unique database ID of the associated node.
+     */
     @Override
     public int hashCode() {
         return node.hashCode();

@@ -2,10 +2,8 @@ package com.github.dprentiss.reqs;
 
 import java.io.File;
 import java.io.IOException;
-//import java.util.Iterator;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
-//import org.neo4j.cypher.javacompat.ExecutionResult;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -21,7 +19,24 @@ import org.neo4j.kernel.impl.util.FileUtils;
 import org.neo4j.tooling.GlobalGraphOperations;
 
 /**
- * Wraps a Neo4j database with methods appropriate for the requirements engineering domain.
+ * Wraps a Neo4j database with methods appropriate for the requirements 
+ * engineering domain.
+ *
+ * This class holds a single instance of {@link org.neo4j.graphdb.GraphDatabaseService}
+ * and the associated embedded database. It's methods enforce the particular
+ * model of architecture descriptions we wish to implement. That is, all
+ * model entities are of type "Primary Entity" or "Documents". Primary Entities
+ * represent the people and organizations that make up the Stakeholders and
+ * architects (not represented) associated with an architecture description.
+ *
+ * While the graph database holds each entity and relationship, this class 
+ * imposes a relational feature. Namely, all Primary Entity nodes may be
+ * referenced by thier unique names, and Documents by thier unique URIs.
+ *
+ * TODO allow for Primary Entities with the same name.
+ * TODO switch underlying database from embedded to standalone.
+ *
+ * @author David Prentiss
  */
 public class ReqsDb {
     private static final String NODE_TYPE_KEY = "type";
@@ -96,10 +111,24 @@ public class ReqsDb {
         cypher = new ExecutionEngine(graphDb);
     }
 
+    /**
+     * Get all nodes present in the database.
+     *
+     * Mainly used for initializing the view of the graph.
+     *
+     * @return All nodes in the database.
+     */
     public Iterable<Node> getAllNodes() {
         return GlobalGraphOperations.at(graphDb).getAllNodes();
     }
 
+    /**
+     * Get all relationships present in the database.
+     *
+     * Mainly used for initializing the view of the graph.
+     *
+     * @return All relationships in the database.
+     */
     public Iterable<Relationship> getAllRelationships() {
         return GlobalGraphOperations.at(graphDb).getAllRelationships();
     }
@@ -138,6 +167,9 @@ public class ReqsDb {
 
     /**
      * Return a primary entity node
+     *
+     * @param name The name of the primary entity to get
+     * @return The node with with the desired name.
      */
     public Node getPrimaryEntity(String name) {
         Transaction tx = graphDb.beginTx();
@@ -152,7 +184,10 @@ public class ReqsDb {
     }
 
     /**
-     * Return a documenth node
+     * Return a document node
+     *
+     * @param URI The URI of the document to get
+     * @return The node with the desired URI.
      */
     public Node getDocument(String URI) {
         Transaction tx = graphDb.beginTx();
@@ -165,24 +200,10 @@ public class ReqsDb {
         }
     }
 
-    /*
-    public Iterable<PrimaryEntity> getAllPrimaryEntities() {
-        return null;
-    }
-
-    public void addRelationship(Node from, Node to, RelationshipType relType) {
-        Transaction tx = graphDb.beginTx();
-        try {
-            from.createRelationshipTo(to, relType);
-            tx.success();
-        } finally {
-            tx.finish();
-        }
-    }
-    */
-
     /**
      * Provides for clean database shutdown for all close events.
+     *
+     * @param graphDb
      */
     private static void registerShutdownHook(final GraphDatabaseService graphDb) {
         Runtime.getRuntime().addShutdownHook(new Thread() {
