@@ -26,7 +26,8 @@ Reqs holds a single instance of a [property graph database](http://www.neo4j.org
 2. An Index maps from Properties to either Nodes or Relationships. We are also able to use the database in a more traditional fashion. An Index keeps track of every entity by name.
 
 3. A Traversal navigates the graph according to predetermined rules. Reqs uses Traversals to find out which entities are related to each other. For example, the Traversal knows to return only the Concerns identified by a Stakeholder in question, though there may be a path in the graph between him and other Concerns.
-The code below is the evaluator used to define the behavior of the Traversal used to identify relationships in Reqs. (from [NodeWrapper.java](https://github.com/dprentiss/reqs/blob/master/src/main/java/com/github/dprentiss/reqs/NodeWrapper.java))
+The code below is the evaluator used to define the behavior of the Traversal used to identify relationships in Reqs. 
+(from [NodeWrapper.java](https://github.com/dprentiss/reqs/blob/master/src/main/java/com/github/dprentiss/reqs/NodeWrapper.java))
 
 
 ``` java
@@ -57,7 +58,16 @@ public Evaluation evaluate(final Path path) {
 ```
 For each path emination from the node in question the Traveral evaluates where to include the path and whether to continue on the current branch.
 
-###Domain Entities - The Behavior
+###Domain Entities
 
-The Node/Relationship data store plus the Traversal Framework are already useful tools for entity/relationship models. But Reqs needs 
+The Node/Relationship data store plus the Traversal Framework are already useful tools for entity/relationship models. But Reqs needs for entities to have behaviors and, more generally, be represented as instances of various classes. To do this Reqs wraps each node in a class.
+[NodeWrapper.java](https://github.com/dprentiss/reqs/blob/master/src/main/java/com/github/dprentiss/reqs/NodeWrapper.java)
+provides an abstract extention point for this process. Since each node has a unique ID managed by the database. Reqs passes this ID to the NodeWrapper as its sole property. As such, the node and relationships in the database represent the data associated with each entity and the NodeWrappers represent the behavior.
 
+##The View
+
+Reqs uses [JUNG](http://jung.sourceforge.net/) to display the model to the user. In future versions, it will also provide a more complete user interface. As it stands, Reqs allows the user to pick any number of entities, and automatically displays the associated entities.
+That is, if the user clicks on a viewpoint, Reqs will highlight the links to the concerns it covers and the people and organizations that identified the concern.
+Currently, if a user clicks on an individual, Reqs will display that individuals concerns and the concerns of the organizations of which he is a memeber.
+
+##Next Steps
