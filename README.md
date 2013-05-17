@@ -17,6 +17,8 @@ The challenge presented by this task is to capture and effectively traverse the 
 
 ##The Model
 
+###Graph Database -- All the Data
+
 Reqs holds a single instance of a [property graph database](http://www.neo4j.org/learn/graphdatabase) provided by [Neo4j](http://neo4j.org/). Neo4j has three aspects that are important to the Reqs model.
 
 1. A graph database has two kinds of records: Nodes and Relationships. While information can be stored in a database any number of ways, Reqs makes use of the obvious, one-to-one correspodance between entities/nodes and relationship/relationship. It also makes use of the ability to assign properties to each node and relationship. A property is simply a key/value pair such as ``{"age":21}``. 
@@ -54,4 +56,8 @@ public Evaluation evaluate(final Path path) {
 }
 ```
 For each path emination from the node in question the Traveral evaluates where to include the path and whether to continue on the current branch.
+
+###Domain Entities -- All the Behavior
+
+The Node/Relationship data store plus the Traversal Framework are already useful tools for entity/relationship models. But Reqs needs 
 
