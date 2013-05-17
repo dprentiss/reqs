@@ -17,7 +17,7 @@ The challenge presented by this task is to capture and effectively traverse the 
 
 ##The Model
 
-###Graph Database -- All the Data
+###Graph Database
 
 Reqs holds a single instance of a [property graph database](http://www.neo4j.org/learn/graphdatabase) provided by [Neo4j](http://neo4j.org/). Neo4j has three aspects that are important to the Reqs model.
 
@@ -26,7 +26,7 @@ Reqs holds a single instance of a [property graph database](http://www.neo4j.org
 2. An Index maps from Properties to either Nodes or Relationships. We are also able to use the database in a more traditional fashion. An Index keeps track of every entity by name.
 
 3. A Traversal navigates the graph according to predetermined rules. Reqs uses Traversals to find out which entities are related to each other. For example, the Traversal knows to return only the Concerns identified by a Stakeholder in question, though there may be a path in the graph between him and other Concerns.
-The code below is the evaluator used to define the behavior of the Traversal used to identify relationships in Reqs.
+The code below is the evaluator used to define the behavior of the Traversal used to identify relationships in Reqs. (from [NodeWrapper.java](https://github.com/dprentiss/reqs/blob/master/src/main/java/com/github/dprentiss/reqs/NodeWrapper.java))
 
 
 ``` java
@@ -57,7 +57,7 @@ public Evaluation evaluate(final Path path) {
 ```
 For each path emination from the node in question the Traveral evaluates where to include the path and whether to continue on the current branch.
 
-###Domain Entities -- All the Behavior
+###Domain Entities - The Behavior
 
 The Node/Relationship data store plus the Traversal Framework are already useful tools for entity/relationship models. But Reqs needs 
 
