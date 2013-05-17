@@ -1,9 +1,9 @@
-reqs
+Requirements Engineerinng Query System
 ====
 
-Requirements Engineering Query System
+Reqs is a proof-of-concept application that demonstrates the ability of graph-based databases to model and query complex entity-relationship concepts. In this case, an embedded database based on Neo4j is used to represent Stakeholders, Concerns, and Viewpoints as described in IEEE 1471 standard describing the architecture of a software-intensive system. 
 
- Reqs is a proof-of-concept application that demonstrates the ability of graph-based databases to model and query complex entity-relationship concepts.  In this case, an embedded database based on Neo4j is used to represent Stakeholders, Concerns, and Viewpoints as described in IEEE 1471 standard describing the architecture of a software-intensive system.  The challenge presented by this task is to capture and effectively traverse the many to many relationships between the three entities. For this initial version of Reqs, the user is presented with a graph-based visual representation of the Stakeholders, Concerns, and Viewpoints in a hypothetical architecture description. The user can graphically select one or more entities and the system responds by highlighting the entities that are related to it.  
+The challenge presented by this task is to capture and effectively traverse the many to many relationships between the three entities. For this initial version of Reqs, the user is presented with a graph-based visual representation of the Stakeholders, Concerns, and Viewpoints in a hypothetical architecture description. The user can graphically select one or more entities and the system responds by highlighting the entities that are related to it.  
 
 ``` java
     public Iterable<Relationship> getRelationships() {
