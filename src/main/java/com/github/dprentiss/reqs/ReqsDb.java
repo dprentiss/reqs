@@ -63,7 +63,7 @@ public class ReqsDb {
 
     /**
      * Initialize the database.
-     * Creates an instance of {@link EmbeddedGraphDatabase}.
+     * Creates an instance of {@link org.neo4j.kernel.EmbeddedGraphDatabase}.
      *
      * @param dbPath path to database directory
      */

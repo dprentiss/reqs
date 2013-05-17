@@ -123,10 +123,9 @@ public abstract class NodeWrapper {
     }
 
     /**
-     * TODO
+     *
      */
     public Iterable<Relationship> getRelationships() {
-
         TraversalDescription traversal = Traversal.description()
             .breadthFirst()
             .evaluator(new Evaluator() {
