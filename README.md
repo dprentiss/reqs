@@ -19,41 +19,36 @@ The challenge presented by this task is to capture and effectively traverse the 
 
 Reqs holds a single instance of a [property graph database](http://www.neo4j.org/learn/graphdatabase) provided by [Neo4j](http://neo4j.org/). Neo4j has three aspects that are important to the Reqs model.
 
-1. A graph database has two kinds of records: Nodes and Relationships. While information can be stored in a database any number of ways, Reqs makes use of the obvious, one-to-one correspodance between entities/nodes and relationship/relationship. It also makes use of the ability to assign properties to each node an relationship. A property is simply a key/value pair such as ``{"age":21}``.
-2. A Traversal navigates the graph according to perdetermined rules.
-3. An Index maps from Properties to either Nodes or Relationships.
+1. A graph database has two kinds of records: Nodes and Relationships. While information can be stored in a database any number of ways, Reqs makes use of the obvious, one-to-one correspodance between entities/nodes and relationship/relationship. It also makes use of the ability to assign properties to each node and relationship. A property is simply a key/value pair such as ``{"age":21}``. 
+
+2. A Traversal navigates the graph according to predetermined rules. Reqs uses Traversals to find out which entities are related to each other. For example, the Traversal knows to return only the Concerns identified by a Stakeholder in question, though there may be a path in the graph between him and other Concerns.
+The code below is the evaluator used to define the behavior of the Traversal used to identify relationships in Reqs.
 
 ``` java
-public Iterable<Relationship> getRelationships() {
-    TraversalDescription traversal = Traversal.description()
-        .breadthFirst()
-        .evaluator(new Evaluator() {
-            @Override
-            public Evaluation evaluate(final Path path) {
-                if (path.length() == 0) {
-                    return Evaluation.EXCLUDE_AND_CONTINUE;
-                }
-                boolean isOutgoingIS_MEMBER = (
-                    path.lastRelationship().getEndNode() == 
-                    path.endNode() &&
-                    (path.lastRelationship()
-                .isType(ReqsDb.RelTypes.IS_MEMBER)));
-                boolean isRelTypeUnique = true;
-                Iterator<Relationship> i = 
-            path.reverseRelationships().iterator();
-                i.next();
-                while (i.hasNext()) {
-                    if (i.next().isType(path.lastRelationship()
-                            .getType())) {
-                        isRelTypeUnique = false;
-                        break;
-                    }
-                }
-                boolean included = isOutgoingIS_MEMBER || isRelTypeUnique;
-                boolean continued = included;
-                return Evaluation.of(included, continued);
-            }
-        });
+public Evaluation evaluate(final Path path) {
+    if (path.length() == 0) {
+        return Evaluation.EXCLUDE_AND_CONTINUE;
+    }
+    boolean isOutgoingIS_MEMBER = (
+        path.lastRelationship().getEndNode() == 
+        path.endNode() &&
+        (path.lastRelationship()
+    .isType(ReqsDb.RelTypes.IS_MEMBER)));
+    boolean isRelTypeUnique = true;
+    Iterator<Relationship> i = 
+        path.reverseRelationships().iterator();
+    i.next();
+    while (i.hasNext()) {
+        if (i.next().isType(path.lastRelationship()
+                .getType())) {
+            isRelTypeUnique = false;
+            break;
+        }
+    }
+    boolean included = isOutgoingIS_MEMBER || isRelTypeUnique;
+    boolean continued = included;
+    return Evaluation.of(included, continued);
 }
-
 ```
+
+3. An Index maps from Properties to either Nodes or Relationships.
