@@ -10,8 +10,10 @@ The challenge presented by this task is to capture and effectively traverse the 
 2. Unzip the zipfile or tarball to the directory of your choice
 3. Change to that directory
 4. Run
-    mvn clean package
+
+    mvn clean install
 5. Now run
+
     java -jar target/reqs-1.0-jar-with-dependencies.jar
 
 
